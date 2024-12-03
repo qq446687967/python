@@ -1,0 +1,150 @@
+在日常工作和学习中，我们经常需要对大量文件进行重命名操作。手动修改不仅耗时，而且容易出错。幸运的是，Python批量修改文件名可以高效地解决这个问题。本文将详细介绍如何使用Python的os模块和正则表达式，实现对文件名的批量修改。通过这篇教程，您将掌握多种实用的方法，帮助您轻松完成文件重命名任务。
+
+前言
+批量修改文件名在数据整理、文件管理和自动化任务中非常常见。比如，您可能需要将一系列照片按日期命名，或者统一更改文件的扩展名。Python作为一门强大的编程语言，提供了丰富的库函数，让我们能够快速地实现这些需求。
+
+使用os模块批量修改文件名
+什么是os模块？
+os模块是Python标准库中的一个模块，它提供了与操作系统进行交互的功能。其中，与文件和目录操作相关的函数非常丰富，比如os.rename()、os.listdir()等。
+
+基本步骤
+导入os模块
+
+import os
+获取目标目录下的文件列表
+file_list = os.listdir('path_to_directory')
+遍历文件列表并重命名
+for filename in file_list:
+    new_name = 'new_' + filename
+    os.rename('path_to_directory/' + filename, 'path_to_directory/' + new_name)
+实例演示
+假设我们有一个文件夹images/，其中包含一系列图片，文件名为image1.jpg、image2.jpg等。我们希望将它们重命名为picture1.jpg、picture2.jpg。
+
+import os
+
+# 指定目录
+directory = 'images/'
+
+# 获取文件列表
+file_list = os.listdir(directory)
+
+# 逐个重命名
+for filename in file_list:
+    # 检查是否为jpg文件
+    if filename.endswith('.jpg'):
+        # 构建新的文件名
+        new_name = filename.replace('image', 'picture')
+        # 重命名文件
+        os.rename(os.path.join(directory, filename), os.path.join(directory, new_name))
+        print(f'{filename} 已重命名为 {new_name}')
+注意事项
+使用os.path.join()来构建路径，确保程序的跨平台兼容性。
+在重命名前，最好检查文件类型，以防意外修改其他文件。
+使用正则表达式批量修改文件名
+什么是正则表达式？
+正则表达式（Regular Expression）是一种字符串匹配的模式，用于检查一个字符串是否与某种模式匹配。Python的re模块提供了对正则表达式的支持。
+
+基本步骤
+导入re模块
+import re
+定义匹配和替换的模式
+pattern = re.compile(r'old_pattern')
+在遍历中使用正则替换
+for filename in file_list:
+    new_name = pattern.sub('new_pattern', filename)
+    os.rename(os.path.join(directory, filename), os.path.join(directory, new_name))
+实例演示
+假设我们有一组文本文件，文件名为document_202101.txt、document_202102.txt等。我们希望将文件名中的年份2021改为2022。
+
+import os
+import re
+
+directory = 'documents/'
+file_list = os.listdir(directory)
+pattern = re.compile(r'2021')
+
+for filename in file_list:
+    if filename.endswith('.txt'):
+        new_name = pattern.sub('2022', filename)
+        os.rename(os.path.join(directory, filename), os.path.join(directory, new_name))
+        print(f'{filename} 已重命名为 {new_name}')
+注意事项
+正则表达式的力量在于能够匹配复杂的字符串模式，使用时需要构建正确的匹配模式。
+在大量文件操作时，最好先在小范围内测试，确保正则表达式的正确性。
+使用glob模块获取特定文件类型
+什么是glob模块？
+glob模块用于查找符合特定规则的文件路径名。它支持通配符匹配，如*.txt匹配所有文本文件。
+
+基本步骤
+导入glob模块
+import glob
+使用通配符获取文件列表
+file_list = glob.glob('path_to_directory/*.jpg')
+遍历并重命名
+for filepath in file_list:
+    # 提取文件名
+    filename = os.path.basename(filepath)
+    # 构建新文件名
+    new_name = 'prefix_' + filename
+    # 重命名文件
+    os.rename(filepath, os.path.join(directory, new_name))
+实例演示
+假设我们要给所有的PDF文件添加前缀report_。
+
+import os
+import glob
+
+directory = 'reports/'
+file_list = glob.glob(os.path.join(directory, '*.pdf'))
+
+for filepath in file_list:
+    filename = os.path.basename(filepath)
+    new_name = 'report_' + filename
+    os.rename(filepath, os.path.join(directory, new_name))
+    print(f'{filename} 已重命名为 {new_name}')
+注意事项
+glob返回的是文件的完整路径，因此在处理时需要使用os.path.basename()提取文件名。
+综合实例：批量修改文件扩展名
+有时候，我们需要更改文件的扩展名。例如，将一批.txt文件改为.md文件。
+
+import os
+
+directory = 'notes/'
+file_list = os.listdir(directory)
+
+for filename in file_list:
+    if filename.endswith('.txt'):
+        base = os.path.splitext(filename)[0]
+        new_name = base + '.md'
+        os.rename(os.path.join(directory, filename), os.path.join(directory, new_name))
+        print(f'{filename} 已重命名为 {new_name}')
+解释
+os.path.splitext(filename)用于分离文件名和扩展名。
+将旧的扩展名替换为新的即可完成修改。
+使用多线程提高效率
+如果要修改的文件数量非常大，可以考虑使用多线程来提高效率。
+
+import os
+import threading
+
+directory = 'large_files/'
+file_list = os.listdir(directory)
+
+def rename_file(old_name, new_name):
+    os.rename(os.path.join(directory, old_name), os.path.join(directory, new_name))
+    print(f'{old_name} 已重命名为 {new_name}')
+
+threads = []
+for filename in file_list:
+    new_name = 'new_' + filename
+    t = threading.Thread(target=rename_file, args=(filename, new_name))
+    threads.append(t)
+    t.start()
+
+for t in threads:
+    t.join()
+注意事项
+多线程适用于I/O密集型任务，但需注意线程安全问题。
+在使用多线程时，要控制好线程的数量，避免资源占用过高。
+
+原文地址：https://www.biqiusoft.com/jishu/python/11042
